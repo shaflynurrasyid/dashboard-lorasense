@@ -1,0 +1,252 @@
+{% extends "base2.html" %}
+{% block title %}Admin Device{% endblock %}
+
+{% block sidebar %}
+<!-- Sidebar Navigation -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('device') }}">
+        <i class="fas fa-fw fa-wifi"></i>
+        <span>Device</span>
+    </a>
+</li>
+
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<!-- Active Sidebar Item - Dashboard -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('dashboard') }}">
+        <i class="fas fa-fw fa-chart-area"></i>
+        <span>Dashboard</span>
+    </a>
+</li>
+
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<!-- Sidebar Navigation - Data -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('data') }}">
+        <i class="fas fa-fw fa-table"></i>
+        <span>Data</span>
+    </a>
+</li>
+{% if user.admin == 1 %}
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<li class="nav-item active">
+    <a class="nav-link" href="{{ url_for('admin_devices') }}">
+        <i class="fas fa-fw fa-desktop"></i>
+        <span>Admin Devices</span>
+    </a>
+</li>
+
+<hr class="sidebar-divider my-0">
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('admin_users') }}">
+        <i class="fa fa-users"></i>
+        <span>Admin Users</span>
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Main Content Section -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Admin Devices</h1>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'error' %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% else %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3">
+            <div class="d-sm-flex align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-dark">
+                    All Devices
+                </h6>
+                <!-- Button to trigger modal -->
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addDeviceModal">
+                    Add Device
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="addDeviceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Add Device</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form id="addDeviceForm" action="/add_device" method="post">
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="username">Username</label>
+                                        <input type="text" class="form-control" id="username" name="username" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="device_id">Device ID</label>
+                                        <input type="text" class="form-control" id="device_id" name="device_id" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="device_name">Device Name</label>
+                                        <input type="text" class="form-control" id="device_name" name="device_name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="latitude">Latitude</label>
+                                        <input type="text" class="form-control" id="latitude" name="latitude">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="longitude">Device Name</label>
+                                        <input type="text" class="form-control" id="longitude" name="longitude">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Device Name</th>
+                            <th>Device ID</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>Edit Device</th>
+                            <th>Delete Device</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for device in devices %}
+                        <tr>
+                            <td>{{ device.username }}</td>
+                            <td>{{ device.device_name }}</td>
+                            <td>{{ device.device_id }}</td>
+                            <td>{{ device.latitude }}</td>
+                            <td>{{ device.longitude }}</td>
+                            <td>
+                                <button type="button" class="btn btn-blue btn-sm" data-toggle="modal" data-target="#editDeviceModal{{ device.device_id }}">
+                                    Edit Device
+                                </button>
+                                <!-- Modal for Edit Devices -->
+                                <div class="modal fade" id="editDeviceModal{{ device.device_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Edit Device</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <form id="editDeviceForm" action="/update_device" method="post">
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label for="username">Username</label>
+                                                        <input type="text" class="form-control" id="username" value="{{ device.username }}" name="username" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="device_id">Device ID</label>
+                                                        <input type="text" class="form-control" id="device_id" value="{{ device.device_id }}" name="device_id" readonly>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="device_name">Device Name</label>
+                                                        <input type="text" class="form-control" id="device_name" value="{{ device.device_name }}" name="device_name" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="latitude">Latitude</label>
+                                                        <input type="text" class="form-control" id="latitude" value="{{ device.latitude }}" name="latitude" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="longitude">Longitude</label>
+                                                        <input type="text" class="form-control" id="longitude" value="{{ device.longitude }}" name="longitude" required>
+                                                    </div>
+                                                    <input type="hidden" name="old_device_id" value="{{ device.device_id }}">
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteDeviceModal{{ device.device_id }}">
+                                    Delete Device
+                                </button>
+                                <!-- Modal for Delete Confirmation -->
+                                <div class="modal fade" id="deleteDeviceModal{{ device.device_id }}" tabindex="-1" role="dialog" aria-labelledby="deleteDeviceModalLabel{{ device.device_id }}" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteDeviceModalLabel{{ device.device_id }}">Delete Device</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to <span class="text-danger font-weight-bold">delete this device and all associated data</span>? This action cannot be undone!
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                <form action="/delete_device" method="post">
+                                                    <input type="hidden" name="device_id" value="{{ device.device_id }}">
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+{% endblock %}

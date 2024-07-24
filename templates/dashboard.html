@@ -1,0 +1,501 @@
+{% extends "base2.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block sidebar %}
+<!-- Sidebar Navigation -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('device') }}">
+        <i class="fas fa-fw fa-wifi"></i>
+        <span>Device</span>
+    </a>
+</li>
+
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<!-- Active Sidebar Item - Dashboard -->
+<li class="nav-item active">
+    <a class="nav-link" href="{{ url_for('dashboard') }}">
+        <i class="fas fa-fw fa-chart-area"></i>
+        <span>Dashboard</span>
+    </a>
+</li>
+
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<!-- Sidebar Navigation - Data -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('data') }}">
+        <i class="fas fa-fw fa-table"></i>
+        <span>Data</span>
+    </a>
+</li>
+{% if user.admin == 1 %}
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('admin_devices') }}">
+        <i class="fas fa-fw fa-desktop"></i>
+        <span>Admin Devices</span>
+    </a>
+</li>
+
+<hr class="sidebar-divider my-0">
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('admin_users') }}">
+        <i class="fa fa-users"></i>
+        <span>Admin Users</span>
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Main Content Section -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-2">
+        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+    </div>
+
+    <!-- Device Selection Dropdown -->
+    <div class="dropdown mb-4">
+        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Select Device
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <!-- Device Dropdown Items -->
+            {% for device in devices %}
+                <a class="dropdown-item" href="{{ url_for('dashboard', device_id=device.device_id, time_range=time_range) }}">{{ device.device_name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Content Rows -->
+    <div class="row">
+
+        <!-- Device Name Card -->
+        <div class="col-xl-6 col-lg-6 col-md-12 mb-4">
+            <!-- Device Name Display -->
+            <div class="card border-left-dark shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                Device Name
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ device.device_name | default('No Device Selected') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latest Data Card -->
+        <div class="col-xl-6 col-lg-6 col-md-12 mb-4">
+            <!-- Latest Data Display -->
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Latest Data
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ latest.time | default('No Data') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+
+        <!-- Temperature Card -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-4" id="temperature-card" style="cursor: pointer;">
+            <div class="card border-left-blue shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-blue text-uppercase mb-1">
+                                Temperature</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if latest.temp %}
+                                    {{ latest.temp }}°C
+                                {% else %}
+                                    No Data
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PH Card -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-4" id="ph-card" style="cursor: pointer;">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Potential of Hydrogen (pH)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if latest.ph %}
+                                    {{ latest.ph }}
+                                {% else %}
+                                    No Data
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TDS Card -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-4" id="tds-card" style="cursor: pointer;">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Dissolved Solids (TDS)</div>
+                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                {% if latest.tds %}
+                                    {{ latest.tds }} ppm
+                                {% else %}
+                                    No Data
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DO Requests Card -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-4" id="do-card" style="cursor: pointer;">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Dissolved Oxygen (DO)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if latest.do %}
+                                    {{ latest.do }} mg/L
+                                {% else %}
+                                    No Data
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+
+        <!-- ORP Card -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-4" id="orp-card" style="cursor: pointer;">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Oxidation-Reduction Potential (ORP)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if latest.orp %}
+                                    +{{ latest.orp }} mV
+                                {% else %}
+                                    No Data
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Salinity Card -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-4" id="salinity-card" style="cursor: pointer;">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Salinity</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if latest.salinity %}
+                                    {{ latest.salinity }} ppt
+                                {% else %}
+                                    No Data
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Water Height Card -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-4" id="water_h-card" style="cursor: pointer;">
+            <div class="card border-left-dark shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                Water Height</div>
+                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                {% if latest.water_h %}
+                                    {{ latest.water_h }} cm
+                                {% else %}
+                                    No Data
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Water Clarity Card -->
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-4" id="water_cl-card" style="cursor: pointer;">
+            <div class="card border-left-blue shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-blue text-uppercase mb-1">
+                                Water Clarity</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if latest.water_cl %}
+                                    {{ latest.water_cl }} NTU
+                                {% else %}
+                                    No Data
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Selection Dropdown for Time Range -->
+    <div class="dropdown mb-4">
+        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Select Time Range on the Graph
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <!-- Time Range Dropdown Items -->
+            <a class="dropdown-item" href="{{ url_for('dashboard', device_id=device.device_id, time_range='today') }}">Today</a>
+            <a class="dropdown-item" href="{{ url_for('dashboard', device_id=device.device_id, time_range='24_hours') }}">24 Hours</a>
+            <a class="dropdown-item" href="{{ url_for('dashboard', device_id=device.device_id, time_range='this_week') }}">This Week</a>
+            <a class="dropdown-item" href="{{ url_for('dashboard', device_id=device.device_id, time_range='one_week') }}">One Week</a>
+            <a class="dropdown-item" href="{{ url_for('dashboard', device_id=device.device_id, time_range='all_time') }}">All Time</a>
+        </div>
+    </div>
+    
+    <!-- Area Charts -->
+    <div class="row">
+        <!-- Area Chart 1 (Temperature) -->
+        <div class="col-xl col-lg">
+            <div class="card shadow mb-4" id="temperature-chart">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-blue">
+                        Temperature
+                    </h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="myAreaChart1"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Area Chart 2 (PH) -->
+        <div class="col-xl col-lg">
+            <div class="card shadow mb-4" id="ph-chart">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        Potential of Hydrogen (pH)
+                    </h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="myAreaChart2"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Area Chart 3 (TDS) -->
+        <div class="col-xl col-lg" id="tds-chart">
+            <div class="card shadow mb-4">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        Total Dissolved Solids (TDS)
+                    </h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="myAreaChart3"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Area Chart 4 (DO) -->
+        <div class="col-xl col-lg" id="do-chart">
+            <div class="card shadow mb-4">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        Dissolved Oxygen (DO)
+                    </h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="myAreaChart4"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Area Chart 5 (ORP) -->
+        <div class="col-xl col-lg">
+            <div class="card shadow mb-4" id="orp-chart">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-secondary">
+                        Oxidation-Reduction Potential (ORP)
+                    </h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="myAreaChart5"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Area Chart 6 (Salinity) -->
+        <div class="col-xl col-lg">
+            <div class="card shadow mb-4" id="salinity-chart">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-danger">
+                        Salinity
+                    </h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="myAreaChart6"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Area Chart 7 (Water Height) -->
+        <div class="col-xl col-lg">
+            <div class="card shadow mb-4" id="water_h-chart">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-dark">
+                        Water Height
+                    </h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="myAreaChart7"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Area Chart 8 (Water Clarity) -->
+        <div class="col-xl col-lg">
+            <div class="card shadow mb-4" id="water_cl-chart">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-blue">
+                        Water Clarity
+                    </h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="myAreaChart8"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Device Data for JavaScript -->
+<script>
+    var deviceData = {{ device_data | safe }};
+</script>
+
+<!-- Smooth Scroll JavaScript for Card Click -->
+<script>
+    // Smooth scrolling to card section when clicked
+    const cards = [
+        { id: "temperature", chart: "temperature-chart" },
+        { id: "ph", chart: "ph-chart" },
+        { id: "tds", chart: "tds-chart" },
+        { id: "do", chart: "do-chart" },
+        { id: "orp", chart: "orp-chart" },
+        { id: "salinity", chart: "salinity-chart" },
+        { id: "water_h", chart: "water_h-chart" },
+        { id: "water_cl", chart: "water_cl-chart" }
+    ];
+
+    cards.forEach(card => {
+        document.getElementById(`${card.id}-card`).addEventListener("click", function() {
+            document.getElementById(card.chart).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+<!-- /.container-fluid -->
+{% endblock %}

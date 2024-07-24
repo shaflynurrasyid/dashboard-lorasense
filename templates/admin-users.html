@@ -1,0 +1,102 @@
+{% extends "base2.html" %}
+{% block title %}Admin Device{% endblock %}
+
+{% block sidebar %}
+<!-- Sidebar Navigation -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('device') }}">
+        <i class="fas fa-fw fa-wifi"></i>
+        <span>Device</span>
+    </a>
+</li>
+
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<!-- Active Sidebar Item - Dashboard -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('dashboard') }}">
+        <i class="fas fa-fw fa-chart-area"></i>
+        <span>Dashboard</span>
+    </a>
+</li>
+
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<!-- Sidebar Navigation - Data -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('data') }}">
+        <i class="fas fa-fw fa-table"></i>
+        <span>Data</span>
+    </a>
+</li>
+{% if user.admin == 1 %}
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('admin_devices') }}">
+        <i class="fas fa-fw fa-desktop"></i>
+        <span>Admin Devices</span>
+    </a>
+</li>
+
+<hr class="sidebar-divider my-0">
+
+<li class="nav-item active">
+    <a class="nav-link" href="{{ url_for('admin_users') }}">
+        <i class="fa fa-users"></i>
+        <span>Admin Users</span>
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Main Content Section -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Admin Users</h1>
+    </div>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <!-- Card Header -->
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-dark">
+                All Users
+            </h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>User ID</th>
+                            <th>Email</th>
+                            <th>Is Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.user_id }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.admin }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+{% endblock %}

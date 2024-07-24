@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block topbar %}
+<!-- Top Navigation Links -->
+<div class="navbar-nav">
+    <a class="nav-link active" aria-current="page" href="{{ url_for('home') }}">Home</a>
+    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+    <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Main Content Section -->
+<div class="container">
+    <!-- Logo and Tagline -->
+    <div style="text-align: center; margin: 20px 0;">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" class="responsive-logo" alt="Logo">
+        <p class="responsive-tagline">Your IoT Sensor Monitoring Companion</p>
+    </div>
+
+    <!-- Introduction Section -->
+    <div class="jumbotron" style="background-color: #4dc7a2; border-radius: 1rem; padding: 2rem;">
+        <h1>LoraSense</h1>
+        <p class="lead">
+            LoraSense is an innovative IoT (Internet of Things) monitoring solution designed
+            to provide comprehensive insights into various sensor data using LoRa (Long Range) technology.
+        </p>
+        <hr class="my-4" />
+        <p>
+            LoraSense for Aquaculture is a state-of-the-art IoT solution tailored for precision monitoring
+            of aquaculture environments. Using LoRa technology, it provides real-time insights into vital parameters
+            like water quality, temperature, pH, and dissolved oxygen, empowering aquaculture practitioners to maintain
+            optimal conditions for fish health and growth. With remote accessibility and advanced analytics,
+            LoraSense streamlines operations, enhances productivity, and promotes sustainability in aquaculture
+            practices.
+        </p>
+        <!-- Button to Dashboard -->
+        <a class="btn btn-primary btn-lg" href="{{ url_for('device') }}" role="button">Go To Dashboard!</a>
+    </div>
+</div>
+{% endblock %}

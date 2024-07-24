@@ -1,0 +1,130 @@
+{% extends "base2.html" %}
+{% block title %}Data{% endblock %}
+
+{% block sidebar %}
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('device') }}">
+        <i class="fas fa-fw fa-wifi"></i>
+        <span>Device</span>
+    </a>
+</li>
+<hr class="sidebar-divider my-0" />
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('dashboard') }}">
+        <i class="fas fa-fw fa-chart-area"></i>
+        <span>Dashboard</span>
+    </a>
+</li>
+<hr class="sidebar-divider my-0" />
+<li class="nav-item active">
+    <a class="nav-link" href="{{ url_for('data') }}">
+        <i class="fas fa-fw fa-table"></i>
+        <span>Data</span>
+    </a>
+</li>
+{% if user.admin == 1 %}
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('admin_devices') }}">
+        <i class="fas fa-fw fa-desktop"></i>
+        <span>Admin Devices</span>
+    </a>
+</li>
+
+<hr class="sidebar-divider my-0">
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('admin_users') }}">
+        <i class="fa fa-users"></i>
+        <span>Admin Users</span>
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-2">
+        <h1 class="h3 mb-0 text-gray-800">Data</h1>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Device Selection Dropdown -->
+    <div class="dropdown mb-4">
+        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Select Device
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% for device in devices %}
+                <a class="dropdown-item" href="{{ url_for('data', device_id=device.device_id) }}">{{ device.device_name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="d-sm-flex align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-dark">
+                    Data Table {{ device.device_name | default('(No Device Selected)') }}
+                </h6>
+                <form id="download-form" action="{{ url_for('download_csv') }}" method="post">
+                    <input type="hidden" name="selected_device_id" value="{{ device.device_id }}">
+                    <button type="submit" class="btn btn-sm btn-success">
+                        <i class="fas fa-download fa-sm text-white-50"></i> Download Data
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Device ID</th>
+                            <th>Time</th>
+                            <th>Temperature</th>
+                            <th>pH</th>
+                            <th>TDS</th>
+                            <th>DO</th>
+                            <th>ORP</th>
+                            <th>Salinity</th>
+                            <th>Water Height</th>
+                            <th>Water Clarity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                        <tr>
+                            <td>{{ row.device_id }}</td>
+                            <td>{{ row.time }}</td>
+                            <td>{{ row.temp if row.temp is not none else "No Data" }}{% if row.temp is not none %}°C{% endif %}</td>
+                            <td>{{ row.ph if row.ph is not none else "No Data" }}</td>
+                            <td>{{ row.tds if row.tds is not none else "No Data" }}{% if row.tds is not none %} ppm{% endif %}</td>
+                            <td>{{ row.do if row.do is not none else "No Data" }}{% if row.do is not none %} mg/L{% endif %}</td>
+                            <td>{{ row.orp if row.orp is not none else "No Data" }}{% if row.orp is not none %} mV{% endif %}</td>
+                            <td>{{ row.salinity if row.salinity is not none else "No Data" }}{% if row.salinity is not none %} ppt{% endif %}</td>
+                            <td>{{ row.water_h if row.water_h is not none else "No Data" }}{% if row.water_h is not none %} cm{% endif %}</td>
+                            <td>{{ row.water_cl if row.water_cl is not none else "No Data" }}{% if row.water_cl is not none %} NTU{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

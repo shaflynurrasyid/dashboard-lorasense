@@ -1,0 +1,162 @@
+{% extends "base2.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block sidebar %}
+<!-- Sidebar Navigation -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('device') }}">
+        <i class="fas fa-fw fa-wifi"></i>
+        <span>Device</span>
+    </a>
+</li>
+
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<!-- Nav Item - Dashboard -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('dashboard') }}">
+        <i class="fas fa-fw fa-chart-area"></i>
+        <span>Dashboard</span>
+    </a>
+</li>
+
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<!-- Nav Item - Data -->
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('data') }}">
+        <i class="fas fa-fw fa-table"></i>
+        <span>Data</span></a>
+</li>
+{% if user.admin == 1 %}
+<!-- Divider -->
+<hr class="sidebar-divider my-0">
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('admin_devices') }}">
+        <i class="fas fa-fw fa-desktop"></i>
+        <span>Admin Devices</span>
+    </a>
+</li>
+
+<hr class="sidebar-divider my-0">
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('admin_users') }}">
+        <i class="fa fa-users"></i>
+        <span>Admin Users</span>
+    </a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Main Content Section -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Profile</h1>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Device Cards -->
+    <div class="row">
+
+        <!-- Device Card -->
+        <div class="col-lg-12 col-xl-12 mb-4">
+            <!-- Default Card Example -->
+            <div class="card border-left-dark shadow mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-dark">
+                        <i class="fas fa-user"></i>
+                        User Profile
+                    </h6>
+                </div>
+
+                <div class="card-body">
+                    <!-- Device Information -->
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="mb-0 font-weight-bold text-gray-800">
+                                Username = {{ user.username }}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Device Information -->
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="mb-0 font-weight-bold text-gray-800">
+                                Email = {{ user.email }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Button to trigger modal -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editUserModal">
+                        Edit User
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+<!-- Modal for Editing User Profile -->
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('update_user') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" name="username" value="{{ user.username }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">New Password</label>
+                        <input type="password" class="form-control" name="password" placeholder="New Password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password2">Confirm New Password</label>
+                        <input type="password" class="form-control" name="password2" placeholder="Confirm New Password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
